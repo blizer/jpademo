@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package configuration;
+package config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import service.AccountService;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -30,9 +29,9 @@ public class JPAConfig {
     public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://127.0.0.1:3307/jpa?characterEncoding=UTF-8");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/spring-jpa-1");
         dataSource.setUsername("root");
-        dataSource.setPassword("admin");
+        dataSource.setPassword("123123");
         return dataSource;
     }
 
@@ -70,16 +69,8 @@ public class JPAConfig {
     }
 
     // Set bean AccountService with platform transaction manager
-    @Bean
-    public AccountService accountService(JpaTransactionManager jpaTransactionManager){
-        AccountService accountService = new AccountService(jpaTransactionManager);
-        return accountService;
-    }
+
 
     // Set bean AccountService using Annatation
-    @Bean
-    public AccountService accountService(){
-        AccountService accountService = new AccountService();
-        return accountService;
-    }
+
 }
