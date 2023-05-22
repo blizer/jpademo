@@ -1,85 +1,161 @@
 package Main;
 
 import config.JPAConfig;
+import entity.BookDetailsEntity;
 import entity.BookEntity;
+import entity.CategoryEntity;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import repository.BookRepository;
+import repository.CategoryRepository;
 
-import java.awt.print.Book;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public class Main {
     static ApplicationContext context = new AnnotationConfigApplicationContext(JPAConfig.class);
     static BookRepository bookRepository = (BookRepository) context.getBean("bookRepository");
+    static CategoryRepository categoryRepository = (CategoryRepository) context.getBean("categoryRepository");
 
-    public static void main (String[] args){
-        //createNewBook();
-        //readBook(1);
-        //updateBook();
-        deleteBook();
-    }
-    private static void createNewBook(){
-        //prepare data
-        BookEntity bookEntity = new BookEntity();
-        bookEntity.setName("Linux shell programming");
-        bookEntity.setAuthor("Bruno");
-        bookEntity.setCategory("IT books");
-        bookEntity.setIsbn("ISIBF12232323");
-        bookEntity.setNumberOfPage(135);
-        bookEntity.setPrice(12.6);
-        bookEntity.setPublishDate(LocalDate.parse("2016-08-25"));
-
-        BookEntity result = bookRepository.save(bookEntity);
-
-        if (result != null) {
-            System.out.println("A new book saved successfully, book ID = "+ bookEntity.getId());
-        }
+    public static void main(String[] args) {
+        createNewBookEntryWithNewCategory();
+        createNewBookEntry();
+        findByAuthor("Roger");
+        findByNameAndAuthor("linux","Roger");
+        findByNameOrAuthor("linux", "Roger");
+        findByPriceLessThan(80);
+        findByBookDetailsIsbn("ISIBF1219321");
+        findByNameContaining("Nu");
     }
 
-    private static void readBook(){
-        List<BookEntity> bookList = (List<BookEntity>) bookRepository.findAll();
-        System.out.println("Found "+ bookList.size() + " book(s) in the table book");
-        System.out.println("They are: ");
-        for(BookEntity book: bookList) {
-            System.out.println(book.toString());
-        }
-    }
-    private static void readBook(int bookID){
-        Optional<BookEntity> bookEntity = bookRepository.findById(bookID);
-        if(bookEntity != null)
+    public static void findByAuthor(String author){
+        List<BookEntity> bookEntityList = bookRepository.findByAuthor(author);
+        if (bookEntityList != null)
         {
-            System.out.println("Found a book with book ID = " + bookID);
+            System.out.println("\nFind "+ bookEntityList.size() +" books which author = "+ author);
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
+        }
+    }
+    public static void findByNameAndAuthor (String name, String author){
+        List<BookEntity> bookEntityList = bookRepository.findByNameAndAuthor(name, author);
+        if (bookEntityList != null){
+            System.out.println("\nFind "+ bookEntityList.size() + " books which name = "
+                    + name + " and author = "+ author);
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
+        }
+    }
+    public static void findByNameOrAuthor (String name, String author){
+        List<BookEntity> bookEntityList = bookRepository.findByNameOrAuthor(name, author);
+        if (bookEntityList != null){
+            System.out.println("\nFind "+ bookEntityList.size() + " books which name = "
+                    + name + " or author = " + author);
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
+        }
+    }
+    public static void findByPriceLessThan (int price){
+        List<BookEntity> bookEntityList = bookRepository.findByBookDetailsPriceLessThan(price);
+        if (bookEntityList != null){
+            System.out.println("\nFind "+ bookEntityList.size() + " books price lass than " + price);
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
+        }
+    }
+    public static void findByNameContaining (String name){
+        List<BookEntity> bookEntityList = bookRepository.findByNameContaining(name);
+        if (bookEntityList != null){
+            System.out.println("\nFind "+ bookEntityList.size() +
+                    " books which containing name = " + name);
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
+        }
+    }
+    public static void findAllUsingQuery (){
+        List<BookEntity> bookEntityList = (List<BookEntity>) bookRepository.findAll();
+        if (bookEntityList != null){
+            System.out.println("\nFind "+ bookEntityList.size() + " books");
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
+        }
+    }
+    public static void findByBookDetailsIsbn (String isbn){
+        BookEntity bookEntity = bookRepository.findByBookDetailsIsbn(isbn);
+        if (bookEntity != null){
+            System.out.println("\nFind book which isbn = "+ isbn);
             System.out.println(bookEntity.toString());
         }
-        else
-        {
-            System.out.println("Not found any book with book ID = " + bookID);
-        }
     }
-    private static void updateBook () {
-        BookEntity bookEntity = bookRepository.findById(1);
-        System.out.println("Book data before updating");
-        System.out.println(bookEntity.toString());
+    public static void createNewBookEntry() {
+        //Instance object Category with ID = 1
+        CategoryEntity categoryEntity = new CategoryEntity();
+        categoryEntity.setId(1);
 
-        bookEntity.setAuthor("Jame");
-        bookEntity.setNumberOfPage(199);
-        bookEntity.setPrice(201);
+        BookEntity bookEntity = createNewBook();
+        //set book category
+        bookEntity.setCategory(categoryEntity);
         bookRepository.save(bookEntity);
-
-        System.out.println("book data after updating");
-        System.out.println(bookEntity.toString());
     }
-    private static void deleteBook() {
-        BookEntity bookEntity = bookRepository.findById(2);
-        if(bookEntity != null) {
-            bookRepository.delete(bookEntity);
+    public static void createNewBookEntryWithNewCategory() {
+        CategoryEntity categoryEntity = createNewCategory();
+        categoryRepository.save(categoryEntity);
+
+        BookEntity bookEntity = createNewBook();
+        bookEntity.setCategory(categoryEntity);
+        bookRepository.save(bookEntity);
+    }
+    private static CategoryEntity createNewCategory() {
+        CategoryEntity categoryEntity = new CategoryEntity();
+        categoryEntity.setName("IT");
+        categoryEntity.setDescrition("IT books");
+        return categoryEntity;
+    }
+    private static BookEntity createNewBook() {
+        BookDetailsEntity bookDetailsEntity = new BookDetailsEntity();
+        bookDetailsEntity.setIsbn("ISIBF1219323");
+        bookDetailsEntity.setNumberOfPage(23);
+        bookDetailsEntity.setPrice(65);
+        bookDetailsEntity.setPublishDate(LocalDate.now());
+
+        BookEntity bookEntity = new BookEntity();
+        bookEntity.setName("Java A-Z");
+        bookEntity.setAuthor("Roger");
+        bookEntity.setBookDetails(bookDetailsEntity);
+        bookDetailsEntity.setBook(bookEntity);
+
+        return bookEntity;
+    }
+    public static void findBookNameStartWithUsingQuery (String name){
+        List<BookEntity> bookEntityList = bookRepository.getBookNameStartWith(name);
+        if (bookEntityList != null){
+            System.out.println("\n find "+ bookEntityList.size() + " books");
+            for (BookEntity bookEntity: bookEntityList){
+                System.out.println(bookEntity.toString());
+            }
         }
-        else
+    }
+    public static void findBookPriceGreaterThanUsingQuery(int price){
+        List<BookEntity> bookEntityList = bookRepository.getBookPriceGreaterThan(price);
+        if (bookEntityList != null)
         {
-            System.out.println("khong ton tai book co ID nay");
+            System.out.println("\nFind "+ bookEntityList.size() + " books");
+            for (BookEntity bookEntity: bookEntityList)
+            {
+                System.out.println(bookEntity.toString());
+            }
         }
     }
 }

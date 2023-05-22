@@ -19,24 +19,15 @@ public class BookEntity {
     @Column(name = "author")
     private String author;
 
-    @Column(name = "category")
-    private String category;
+    @ManyToOne
+    @JoinColumn (name = "categoryId")
+    private CategoryEntity category;
 
-    @Column(name = "isbn")
-    private String isbn;
+    @OneToOne(cascade = {CascadeType.ALL})
+    @PrimaryKeyJoinColumn
+    private BookDetailsEntity bookDetails;
 
-    @Column(name = "price")
-    private double price;
-
-    @Column(name = "numberPage")
-    private int numberOfPage;
-
-    @Column(name = "publishDate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate publishDate;
-
-    public BookEntity()
-    {
+    public BookEntity() {
 
     }
 
@@ -64,44 +55,20 @@ public class BookEntity {
         this.author = author;
     }
 
-    public String getCategory() {
+    public CategoryEntity getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(CategoryEntity category) {
         this.category = category;
     }
 
-    public String getIsbn() {
-        return isbn;
+    public BookDetailsEntity getBookDetails() {
+        return bookDetails;
     }
 
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public int getNumberOfPage() {
-        return numberOfPage;
-    }
-
-    public void setNumberOfPage(int numberOfPage) {
-        this.numberOfPage = numberOfPage;
-    }
-
-    public LocalDate getPublishDate() {
-        return publishDate;
-    }
-
-    public void setPublishDate(LocalDate publishDate) {
-        this.publishDate = publishDate;
+    public void setBookDetails(BookDetailsEntity bookDetails) {
+        this.bookDetails = bookDetails;
     }
 
     @Override
@@ -110,11 +77,8 @@ public class BookEntity {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", author='" + author + '\'' +
-                ", category='" + category + '\'' +
-                ", isbn='" + isbn + '\'' +
-                ", price=" + price +
-                ", numberOfPage=" + numberOfPage +
-                ", publishDate=" + publishDate +
+                ", category=" + category +
+                ", bookDetails=" + bookDetails +
                 '}';
     }
 }
